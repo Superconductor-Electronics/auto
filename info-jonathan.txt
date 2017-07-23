@@ -1,0 +1,63 @@
+Auto Example
+Thomas Ortlepp 2.12.2010
+-------------------------
+### input ###
+-------------------------
+dff5.js     ... netlist
+dff5.conf   ... config file
+dff5.para   ... parameter
+dff5.soll   ... test pattern
+-------------------------
+### Ausgabedateien ###
+-------------------------
+dff5.agr    ... Margins for XMGrace
+dff5.ext    ... Simulation result
+dff5.mar    ... Margins as ASCII 
+dff5-t.js   ... netlist with parameters
+dff5.yi     ... yield
+-------------------------
+### Systemprogramme ###
+-------------------------
+A           ... Script to run jsim
+auto3       ... main program
+cutt        ... cutting numeric output from jsim output
+ext         ... same as cutt but with digital output
+jsim_n      ... 
+marginout1.tagr ...  config for xmgrace
+marginout1.tagr ...  config for xmgrace
+qrun        ... internal Script for auto3
+tabcomp     ... comparison of digital output and test pattern
+-------------------------
+### Skripte ###
+-------------------------
+a  .. Optimierung - Center of Gravity
+
+auto3 dff5 2 500 50
+
+Parameter 500 ... number of trails
+Parameter 50  ... boxsize in % (+-50%)
+-------------------------
+b .. Margin calculation
+
+auto3 dff5 1 10
+
+Parameter 10 ... number of binary division steps 
+-------------------------
+d .. yield calculation
+
+auto3 dff5 3 20 20 10
+
+Parameter 30  ... number of trails per yield number
+Parameter 20  ... maximum spread 20%
+Parameter 10  ... number of steps
+-------------------------
+e .. 2D margins
+
+auto3 dff5 4 b d 10 20
+
+Parameter b    ... parameter 1
+Parameter d    ... parameter 2
+Parameter 10   ... number of binary division steps
+Parameter 20   ... number of angle steps
+-------------------------
+t .. single simulation

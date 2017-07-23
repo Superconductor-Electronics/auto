@@ -1,0 +1,10 @@
+rm $2
+jsim_n $1 > $2
+ext $3
+rm $4
+tabcomp $3 v >>  $4
+
+# $1  <simcir>
+# $2  <simout>
+# $3  config-file ohne Endung
+# $4  <simtest>
