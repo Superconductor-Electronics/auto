@@ -34,7 +34,7 @@ double readvalue(char tc[])
   }
 //---------------------------------------------
 //---------------------------------------------
-void readfilename(char *s, char *tc)
+void readfilename(char *s, const char *tc)
   {
     FILE *ez; 
     if (ausgabe==1)  printf("Konfigurationsdatei einlesen: %s -> ",fconf);
@@ -48,14 +48,11 @@ void readfilename(char *s, char *tc)
 //---------------------------------------------
 
 
-int main (int argc, char *argv[])
+int main (int argc, const char *argv[])
   {
-    double t1,t2; 
-    char s1[100],s2[100],s3[100],s4[100],filename[50];
-    double w1,w2,w3,w4;
+    char s1[100],s2[100];
+    double w1,w2;
     char fa[250],fb[250],f3[50]=".conf";
-    int count=0;
-    int c=-3;
     FILE *ex,*ey;
     if ((argc==3)&&(argv[2][0]=='v'))  ausgabe=0;
     

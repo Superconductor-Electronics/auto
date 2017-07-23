@@ -44,7 +44,7 @@ char f6[50]=".conf";   // Endung config-File
 char para1c, para2c;
 char fconf[50];
 //---------------------------------------------
-double readvalue(char tc[])
+double readvalue(const char tc[])
   {
     FILE *ez; 
     char s[100];
@@ -62,7 +62,7 @@ double readvalue(char tc[])
   }
 //---------------------------------------------
 //---------------------------------------------
-void readfilename(char s[], char tc[])
+void readfilename(char s[], const char tc[])
   {
     FILE *ez; 
     printf("Konfigurationsdatei einlesen: %s -> ",fconf);
@@ -83,7 +83,7 @@ void genfile ()    // Parameter musz mit @z  im Quellfile stehen
   {                // z ist dabei ein beliebiges Bezeichner des Parameters
     
     char c;
-    double x,glob[10],pw;
+    double glob[10],pw;
     int i,j,found,count=0;
 //    printf("Erzeuge Parameter-Netzliste\n");
     ex=fopen(fa,"r+");
@@ -175,7 +175,7 @@ void ergebnis()
 int funktionstest()
   {
     char s[100];
-    double w1,w2,w3,w4;
+    double w1;
     int test=0;
     eq=fopen(fd,"r+");
         {
@@ -343,7 +343,7 @@ void test2()
 //    int maxtest=5000;
     double min=1.0-streuung/100.0;
     double max=1.0+streuung/100.0;
-    double alpha,beta,teiler,zufall,m;
+    double zufall,m;
     int count=0;
     ee=fopen(fe,"w+");
     for (i=1; i<n; i++) parawert[i]=parawert2[i];
@@ -437,7 +437,7 @@ void test3()
     srand(1564443381);
     int k,i,j,e,zi;
 
-    double alpha,beta,teiler,zufall,m,geht;
+    double zufall,m,geht;
     int count=0;
     ee=fopen(fe,"w+");
     ett=fopen(filename,"w+");
@@ -516,12 +516,11 @@ void test4()
     int maxteiler=maxmarginstep;
     double min=0.1;
     double max=1.9;
-    double alpha,beta,teiler;
+    double beta,teiler;
     double r1,r2,wx,wy;
     
     for (i=1; i<n; i++) parawert[i]=parawert2[i];
     e=simu();
-    int I=0;
     if (e==1)  // Funktion ohne Parametervariation
       {
         for (R=0; R<NR; R++)  //  Kreis ablaufen in 12 Schritten
@@ -566,7 +565,6 @@ void test6()
     ee=fopen(fe,"w+");
     int i=0,j=0;
     int para1;     // Parameter
-    double firstx,firsty;
     printf("Parameter bestimmen\n");
     do
     {                          // Nummer des aktiven Parameters suchen
@@ -585,15 +583,12 @@ void test6()
     printf("aktiver Parameter : %s = %lf\n",  paralabel[para1],parawert[para1]);   
 
     int e,R,NR=stepnumber;
-    int maxteiler=maxmarginstep;
     double min=1-maxmarginstep/100.0;
     double max=1+maxmarginstep/100.0;
     double delta;
-    double r1,r2,wx,wy;
     
     for (i=1; i<n; i++) parawert[i]=parawert2[i];
     e=simu();
-    int I=0;
         delta=(max-min)/stepnumber;
         for (R=0; R<NR; R++)  // 
 	  {       
@@ -621,7 +616,7 @@ void test5()
     srand(1564443281);
     int k,i,j,e,zi;
 
-    double alpha,beta,teiler,zufall,m,geht;
+    double zufall,m,geht;
     int count=0;
     ee=fopen(fe,"w+");
     ett=fopen(filename,"w+");
@@ -688,7 +683,7 @@ void test5()
 
 int main (int argc, char *argv[])
   {
-    int e,mode;
+    int mode;
        
     printf("\nAutomatischer Parameterfile-Generator  v 1.91 12.03.2001\n");
     printf("ortlepp<at>rsfq.de-------------------------------------------\n");

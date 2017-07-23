@@ -18,7 +18,7 @@ double maxzerovoltage=0.0, minonevoltage=80.0,voltagesw;
 
 char fconf[50];
 //---------------------------------------------
-double readvalue(char tc[])
+double readvalue(const char tc[])
   {
     FILE *ez; 
     char s[100];
@@ -38,7 +38,7 @@ double readvalue(char tc[])
   }
 //---------------------------------------------
 //---------------------------------------------
-void readfilename(char s[], char tc[])
+void readfilename(char s[], const char tc[])
   {
     FILE *ez; 
     printf("Reading configfile: %s -> ",fconf);
@@ -60,7 +60,7 @@ int main (int argc, char *argv[])
     char s[100],ta[10]=".END",tb[10]="loop",f3[50]=".conf";
 
     int c,n,q=0,zd=0,Q=1,h;
-    double tx=40.0e-12,r,eps=1e-15;
+    double tx=40.0e-12,eps=1e-15;
     printf("processing of simulation data for comparision to *.soll file.\n");
     FILE *ex,*ey;
     double w;

@@ -17,7 +17,7 @@ double extstep=0.0003,offset;
 
 char fconf[50];
 //---------------------------------------------
-double readvalue(char tc[])
+double readvalue(const char tc[])
   {
     FILE *ez; 
     char s[100];
@@ -37,7 +37,7 @@ double readvalue(char tc[])
   }
 //---------------------------------------------
 //---------------------------------------------
-void readfilename(char s[], char tc[])
+void readfilename(char s[], const char tc[])
   {
     FILE *ez; 
     printf("Konfigurationsdatei einlesen: %s -> ",fconf);
@@ -57,8 +57,8 @@ int main (int argc, char *argv[])
     printf("--------------------------------------\n");
     char s[100],ta[10]=".END",tb[10]="loop",f3[50]=".conf";
 
-    int c,n,q=0,zd=0,Q=1,h;
-    double tx=40.0e-12,r,eps=1e-15;
+    int c,n,q=0,zd=0;
+    double tx=40.0e-12,eps=1e-15;
     printf("Auswertungstabelle der Phasenwerte erstellen\n");
     FILE *ex,*ey;
     double w;
