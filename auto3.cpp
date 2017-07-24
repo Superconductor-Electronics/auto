@@ -16,6 +16,8 @@
 //#include <fstream.h>
 #include <string.h>
 
+#include "common.hpp"
+
 //------------------------------
 // Technologieparameter
 // Technology Parameters
@@ -47,39 +49,6 @@ double para1,para2,para3,para4,para5;
 char fa[250],fb[250],simcir[250],fd[250],fe[250],ff[250],fcc[250];
 char f6[50]=".conf";   // Endung config-File
 char para1c, para2c;
-char fconf[50];
-//---------------------------------------------
-double readvalue(const char tc[])
-  {
-    FILE *ez; 
-    char s[100];
-    double zs;
-      printf("Read configuration file: %s -> ",fconf);
-    ez=fopen(fconf,"r+");
-    fscanf(ez,"%s",s);
-    while (strcmp(s,tc)!=0)    // Vergleich ".end"
-       fscanf(ez,"%s",s);         
-    fscanf(ez,"%s",s);
-    zs=atof(s);
-    printf(" < %s = %s >\n",tc,s);
-    fclose(ez);    
-    return zs;
-  }
-//---------------------------------------------
-//---------------------------------------------
-void readfilename(char s[], const char tc[])
-  {
-    FILE *ez; 
-    printf("Read configuration file: %s -> ",fconf);
-    ez=fopen(fconf,"r+");
-    fscanf(ez,"%s",s);
-    while (strcmp(s,tc)!=0) fscanf(ez,"%s",s);         
-    fscanf(ez,"%s",s);
-    printf(" < %s = %s >\n",tc,s);
-    fclose(ez);    
-  }
-//---------------------------------------------
-
 
 FILE *ex,*ey,*ez,*eq,*ee;
 

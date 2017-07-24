@@ -7,46 +7,12 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include "common.hpp"
 
 #define ja   1
 #define nein 0
 
 int fertig=0;
-int ausgabe=1;
-    
-char fconf[50];
-//---------------------------------------------
-double readvalue(char tc[])
-  {
-    FILE *ez; 
-    char s[100];
-    double zs;
-    if (ausgabe==1)  printf("Konfigurationsdatei einlesen: %s -> ",fconf);
-    ez=fopen(fconf,"r+");
-    fscanf(ez,"%s",s);
-    while (strcmp(s,tc)!=0)    // Vergleich ".end"
-       fscanf(ez,"%s",s);         
-    fscanf(ez,"%s",s);
-    zs=atof(s);
-    if (ausgabe==1)  printf(" < %s = %s >\n",tc,s);
-    fclose(ez);    
-    return zs;
-  }
-//---------------------------------------------
-//---------------------------------------------
-void readfilename(char *s, const char *tc)
-  {
-    FILE *ez; 
-    if (ausgabe==1)  printf("Konfigurationsdatei einlesen: %s -> ",fconf);
-    ez=fopen(fconf,"r+");
-    fscanf(ez,"%s",s);
-    while (strcmp(s,tc)!=0) fscanf(ez,"%s",s);         
-    fscanf(ez,"%s",s);
-    if (ausgabe==1) printf(" < %s = %s >\n",tc,s);
-    fclose(ez);    
-  }
-//---------------------------------------------
-
 
 int main (int argc, const char *argv[])
   {
@@ -54,10 +20,10 @@ int main (int argc, const char *argv[])
     double w1,w2;
     char fa[250],fb[250],f3[50]=".conf";
     FILE *ex,*ey;
-    if ((argc==3)&&(argv[2][0]=='v'))  ausgabe=0;
+    if ((argc==3)&&(argv[2][0]=='v'))  output=0;
     
-    if (ausgabe==1) printf("Table Compare V 1.2  Thomas Ortlepp 16.10.2001 \n");  
-    if (ausgabe==1) printf("-----------------------------------------------\n");
+    if (output==1) printf("Table Compare V 1.2  Thomas Ortlepp 16.10.2001 \n");
+    if (output==1) printf("-----------------------------------------------\n");
     if (argc>=2)
       {
         strcpy(fconf,argv[1]); 	
@@ -78,7 +44,7 @@ int main (int argc, const char *argv[])
       }	
 
     int error=0;
-    if (ausgabe==1) printf("Vergleich der Dateien %s mit %s\n",fa,fb);
+    if (output==1) printf("Vergleich der Dateien %s mit %s\n",fa,fb);
     ex=fopen(fa,"r+");
     ey=fopen(fb,"r+");
     

@@ -7,52 +7,18 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include "common.hpp"
 
 #define ja   1
 #define nein 0
 
-int output=nein;
 char fa[250],fb[250];
 double extstep=0.0003,offset;
 
-char fconf[50];
-//---------------------------------------------
-double readvalue(const char tc[])
-  {
-    FILE *ez; 
-    char s[100];
-    double zs;
-    printf("Konfigurationsdatei einlesen: %s -> ",fconf);
-    ez=fopen(fconf,"r+");
- //   printf(".%s\n",fconf);
-    fscanf(ez,"%s",s);
-    while (strcmp(s,tc)!=0)    // Vergleich ".end"
-       fscanf(ez,"%s",s);         
-    fscanf(ez,"%s",s);
-//    printf(" < %s = %s >\n",tc,s);
-    zs=atof(s);
-    printf(" < %s = %s >\n",tc,s);
-    fclose(ez);    
-    return zs;
-  }
-//---------------------------------------------
-//---------------------------------------------
-void readfilename(char s[], const char tc[])
-  {
-    FILE *ez; 
-    printf("Konfigurationsdatei einlesen: %s -> ",fconf);
-    ez=fopen(fconf,"r+");
-    fscanf(ez,"%s",s);
-    while (strcmp(s,tc)!=0) fscanf(ez,"%s",s);         
-    fscanf(ez,"%s",s);
-    printf(" < %s = %s >\n",tc,s);
-    fclose(ez);    
-  }
-//---------------------------------------------
-
-
 int main (int argc, char *argv[])
   {
+    output=nein;
+
     printf("cutt v 1.21  Thomas Ortlepp 21.10.2002 \n");  
     printf("--------------------------------------\n");
     char s[100],ta[10]=".END",tb[10]="loop",f3[50]=".conf";
