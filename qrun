@@ -6,5 +6,5 @@ tabcomp $3 v >>  $4
 
 # $1  <simcir>
 # $2  <simout>
-# $3  config-file ohne Endung
+# $3  config-file without extension
 # $4  <simtest>
