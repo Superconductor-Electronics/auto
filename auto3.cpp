@@ -5,6 +5,10 @@
 //    2 Simulieren
 //    3 Extrakt von Daten in Textfile
 //
+//    1 Automatically set parameters in Jsim files
+//    2 Simulate
+//    3 Extract data into textfiles
+//
 //----------------------------------------------------
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,9 +18,10 @@
 
 //------------------------------
 // Technologieparameter
+// Technology Parameters
 //------------------------------
 double I0RN = 0.3e-3;    //  Werte werden mit .conf File Werten überschrieben
-double betac= 1.0;       //
+double betac= 1.0;       //  Values are overwritten with .conf values
 
 double Phi0 = 2.07e-15;
 double Pi   = 3.14159265;
@@ -49,7 +54,7 @@ double readvalue(const char tc[])
     FILE *ez; 
     char s[100];
     double zs;
-    printf("Konfigurationsdatei einlesen: %s -> ",fconf);
+      printf("Read configuration file: %s -> ",fconf);
     ez=fopen(fconf,"r+");
     fscanf(ez,"%s",s);
     while (strcmp(s,tc)!=0)    // Vergleich ".end"
@@ -65,7 +70,7 @@ double readvalue(const char tc[])
 void readfilename(char s[], const char tc[])
   {
     FILE *ez; 
-    printf("Konfigurationsdatei einlesen: %s -> ",fconf);
+    printf("Read configuration file: %s -> ",fconf);
     ez=fopen(fconf,"r+");
     fscanf(ez,"%s",s);
     while (strcmp(s,tc)!=0) fscanf(ez,"%s",s);         
@@ -79,9 +84,12 @@ void readfilename(char s[], const char tc[])
 FILE *ex,*ey,*ez,*eq,*ee;
 
 //----------------------------------------------------
+
+// Parameters must be @z in the source file
+// z is an arbitrary identifier of the parameter
+
 void genfile ()    // Parameter musz mit @z  im Quellfile stehen
   {                // z ist dabei ein beliebiges Bezeichner des Parameters
-    
     char c;
     double glob[10],pw;
     int i,j,found,count=0;
@@ -146,13 +154,13 @@ void genfile ()    // Parameter musz mit @z  im Quellfile stehen
     fclose(ex);
   }
 //----------------------------------------------------
-void ergebnis()    
+void ergebnis()     // result
   {
     FILE *ex;
     char s[200];
     int n=0,b=0;
-    char ein[150]="Zeitdifferenz:";
-    printf("Daten extrahieren...\n");
+    char ein[150]="Time difference:";
+    printf("Extract data...\n");
     ex=fopen("jtl20-slavex.pik","r+");
    
     while (b<1) 
@@ -163,7 +171,7 @@ void ergebnis()
           {
             fprintf(ez," ");
             fscanf(ex,"%s",&s);  fprintf(ez," %s\n",s);
-            printf("Schreibe : %s\n",s);
+            printf("Write : %s\n",s);
             b++;
           };
         n++;
@@ -234,7 +242,7 @@ void test1()
     for (i=1; i<n; i++) parawert[i]=parawert2[i];
     e=simu();
     int I=0;
-    if (e==1)  // Funktion ohne Parametervariation
+      if (e==1)  //Function without parameterisation
       {
       for (i=1; i<n; i++)
         if (parastatus[i]>0)
@@ -243,7 +251,7 @@ void test1()
 	     teiler=1.0;
              alpha=0.0;
              parawert[i]=min*parawert2[i];	     
-             e=simu();          // Funktion an der unteren Grenze ??
+             e=simu();          // Function at the lower limit ??
 	     if (e==0)
 	      {
 	       for (j=1;j<maxteiler;j++)
@@ -258,7 +266,7 @@ void test1()
              teiler=1.0;
              beta=0.0;
              parawert[i]=max*parawert2[i];	     	     
-             e=simu();          // Funktion an der unteren Grenze ??
+             e=simu();          // unction at the lower limit ??
 	     if (e==0)
 	      {
   	       for (j=1;j<maxteiler;j++)
@@ -324,7 +332,7 @@ void test1()
 	        parawert[i]=parawert2[i];
           }
 	  
-      }	  else printf("Keine Funktion mit Anfangswerten!\n");  
+      }	  else printf("No function with initial values!\n");
      fclose(ee); 
 //----------------------                      
 
@@ -351,7 +359,7 @@ void test2()
     for (j=1; j<=maxtest; j++)
       {
         for (i=1; i<n; i++) 
-	 if (parastatus[i]>0)   // nur aktive Parameter aendern
+            if (parastatus[i]>0)   // Only active parameters
           {
 	    zi=rand();  zufall=zi/double(RAND_MAX);
 	    	    
@@ -373,7 +381,7 @@ void test2()
             if (count>0)
 	      
  	      for (i=1; i<n; i++) 
-  	       if (parastatus[i]>0)   // nur aktive Parameter aendern	       
+  	       if (parastatus[i]>0)   // Only active parameters
 	       {
                  printf("Parameter:'%c' (%3.5lf) -> (%3.5lf)\n", 
                         paraname[i],parawert2[i],paracenter[i]/count);
@@ -390,20 +398,20 @@ int parameterread()
   {
     char s[200];
     int i=1,aktiv=0;
-    printf("Einlesen der Parameter\n");
-    fscanf(ey,"%s",&s);   // ersten Parameter lesen
+      printf("Reading the parameters\n");
+      fscanf(ey,"%s",&s);   // Read the first parameter
     while (!(feof(ey))) 
       {
-	if ( (s[0]>='0' && s[0]<='9') ||    // Paramete fuer globale Skalierung
+          if ( (s[0]>='0' && s[0]<='9') ||    //  Parameter for global scaling
 	         (s[0]>='a' && s[0]<='z') ||   
 		     (s[0]>='A' && s[0]<='Z'))
 	  {
   	    paraname[i]=s[0];
-            fscanf(ey,"%s",&s); // Zahlenwert Parameter
+          fscanf(ey,"%s",&s); // Numerical parameter
 	    parawert[i]=atof(s);
 	    parawert2[i]=parawert[i];
 	//    printf("%c  %lf \n",paraname[i],parawert[i]);
-	    fscanf(ey,"%s",&s);  // Bezeichnung Parameter
+          fscanf(ey,"%s",&s);  // Description parameters
 	    strcpy(paralabel[i],s);
 	    fscanf(ey,"%s",&s);  // Status Parameter
             parastatus[i]=atoi(s);	    
@@ -411,17 +419,17 @@ int parameterread()
 //	    printf("->%d \n",parastatus[i]);
 	    i++;
           }  
-        fscanf(ey,"%s",&s);  // naechsten Parameter lesen
+          fscanf(ey,"%s",&s);  // Read the next parameter
       }  
     n=i;
     parameteraktiv=aktiv;
-    printf("%d Parameter eingelesen, davon %d aktiv. \n",i-1,aktiv);
+    printf("%d Parameters, of which %d are active. \n",i-1,aktiv);
     return 0;
   }
   
-double normalverteilung(double x)
+double normalverteilung(double x) // normal distribution
   {
-    // x gleichverteilt auf (0,1)
+    // x equally distributed (0,1)
     double a = 1.701;
     double y = -log((1-x)/x) / a;
     return y;
@@ -430,6 +438,7 @@ double normalverteilung(double x)
 void test3()
   {
     // steunung wird als 1 sigma in % interpretiert
+    // is interpreted as 1 sigma
     FILE *ett;
     char filename[250];
     readfilename(filename,"yield");  
@@ -685,9 +694,9 @@ int main (int argc, char *argv[])
   {
     int mode;
        
-    printf("\nAutomatischer Parameterfile-Generator  v 1.91 12.03.2001\n");
+      printf("\nAutomatic parameter file generator  v 1.91 12.03.2001\n");
     printf("ortlepp<at>rsfq.de-------------------------------------------\n");
-    printf("modification 22.05.2008, 24.08.2009-----------------------\n");      
+    printf("modification 22.05.2008, 24.08.2009, 23.07.2017--------------\n");
     if (argc>3)
       {
 	strcpy(fconf,argv[1]);
@@ -701,8 +710,8 @@ int main (int argc, char *argv[])
         printf("auto3 configfile(.conf) <1..Margins|2..Monte Carlo|3..Yield|4..2D scan|5..yield vs. para> <para1> <para2> ..\n"); 
         printf("Mode 1: <maxteilung>   z.B. 8\n");      
         printf("Mode 2: <maxtest> <streuung>    z.B   1000 30\n");      
-        printf("Mode 3: <maxtest> <maxstreuung> <schritte>  z.B.  500  30  10\n"); 
-        printf("Mode 4: <para1> <para2> <schritte>  z.B.  A x 10 100\n"); 
+        printf("Mode 3: <maxtest> <maxstreuung> <steps>  z.B.  500  30  10\n");
+        printf("Mode 4: <para1> <para2> <steps>  z.B.  A x 10 100\n"); 
 	printf("Mode 5 (yield vs. parameter): <para> <steps> <spread>\n");
 	exit(1);
       }	
