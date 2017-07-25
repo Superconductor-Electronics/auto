@@ -1,3 +1,5 @@
+
+echo "PARAMS: $1 $2 $3 $4"
 rm $2
 jsim_n $1 > $2
 ext $3

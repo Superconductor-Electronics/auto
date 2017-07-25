@@ -15,6 +15,8 @@ add_executable(cutt
 )
 
 add_executable(ext
+	common.cpp
+	common.hpp
 	ext.cpp
 )
 

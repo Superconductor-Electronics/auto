@@ -8,56 +8,23 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include "common.hpp"
 
 #define ja   1
 #define nein 0
 
-int output=nein,ende=0;
+int ende=0;
 char fa[250],fb[250];
 double maxzerovoltage=0.0, minonevoltage=80.0,voltagesw;
 
-char fconf[50];
-//---------------------------------------------
-double readvalue(const char tc[])
-  {
-    FILE *ez; 
-    char s[100];
-    double zs;
-    printf("Reading configfile: %s -> ",fconf);
-    ez=fopen(fconf,"r+");
- //   printf(".%s\n",fconf);
-    fscanf(ez,"%s",s);
-    while (strcmp(s,tc)!=0)    // Vergleich ".end"
-       fscanf(ez,"%s",s);         
-    fscanf(ez,"%s",s);
-//    printf(" < %s = %s >\n",tc,s);
-    zs=atof(s);
-    printf(" < %s = %s >\n",tc,s);
-    fclose(ez);    
-    return zs;
-  }
-//---------------------------------------------
-//---------------------------------------------
-void readfilename(char s[], const char tc[])
-  {
-    FILE *ez; 
-    printf("Reading configfile: %s -> ",fconf);
-    ez=fopen(fconf,"r+");
-    fscanf(ez,"%s",s);
-    while (strcmp(s,tc)!=0) fscanf(ez,"%s",s);         
-    fscanf(ez,"%s",s);
-    printf(" < %s = %s >\n",tc,s);
-    fclose(ez);    
-  }
-//---------------------------------------------
-
-
 int main (int argc, char *argv[])
   {
+    output=nein;
+      
     printf("---------------------------------------------------\n");
     printf("ext v 2.11  Thomas Ortlepp 11.09.2001 - 01.07.2004 \n");  
     printf("---------------------------------------------------\n");
-    char s[100],ta[10]=".END",tb[10]="loop",f3[50]=".conf";
+    char s[100],f3[50]=".conf";
 
     int c,n,q=0,zd=0,Q=1,h;
     double tx=40.0e-12,eps=1e-15;
@@ -95,15 +62,32 @@ int main (int argc, char *argv[])
       }	
     tx=1e-12*readvalue("timestep");
   // printf("Einlesen der Datei :%s  %s\n",fa,fb);	
+      /*
+    fprintf(stderr, "Reading data:%s\n",fa);
+    fflush(stdout);
+      */
       
-    printf("Reading data:%s\n",fa);
     ex=fopen(fa,"r+");
+    if (ex==NULL) {
+        fprintf(stderr, "Unable to open: %s\n", fa);
+        exit(-4);
+    }
     ey=fopen(fb,"w+");
+      
+    if (ey==NULL) {
+        fprintf(stderr, "Unable to open: %s\n", fa);
+        exit(-5);
+    }
      
        fscanf(ex,"%s",s);
 //     printf("%s\n",s);
-       while (strcmp(s,ta)!=0)    // Vergleich ".end"
-           fscanf(ex,"%s",s);         
+      while (strcasecmp(s,".END")!=0) {    // Vergleich ".end"
+           fscanf(ex,"%s",s);
+          if (feof(ex)) {
+              fprintf(stderr, "End of file found before finding '.END'\n");
+              break; // Should this be an error?
+          }
+      }
  
        int outx=0;
        
@@ -111,7 +95,7 @@ int main (int argc, char *argv[])
        fscanf(ex,"%s",s);
 
        ende=0;       
-       while ((ende!=-1)&&(strcmp(s,tb)!=0))    // Kopie bis "loop" oder eof
+       while ((ende!=-1)&&(strcmp(s,"loop")!=0))    // Kopie bis "loop" oder eof
         {
           if (output==ja)  printf("#%s ",s);
 	  w=atof(s);

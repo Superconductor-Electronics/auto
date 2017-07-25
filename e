@@ -1,3 +1,3 @@
-auto3 dff5 4 b d 10 20
-xmgrace -autoscale xy -nxy dff5.mar &
+auto3 dff5/dff5 4 b d 10 20
+xmgrace -autoscale xy -nxy dff5/dff5.mar &
 

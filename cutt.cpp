@@ -54,8 +54,15 @@ int main (int argc, char *argv[])
       
     printf("Einlesen der Datei :%s\n",fa);
     ex=fopen(fa,"r+");
-    ey=fopen(fb,"w+");
-     
+      if (ex==NULL) {
+          fprintf(stderr, "Unable to open %s\n", fa);
+          exit(-2);
+      }
+      ey=fopen(fb,"w+");
+      if (ey==NULL) {
+          fprintf(stderr, "Unable to open %s\n", fb);
+          exit(-2);
+      }
        fscanf(ex,"%s",s);
 //     printf("%s\n",s);
        while (strcmp(s,ta)!=0)    // Vergleich ".end"

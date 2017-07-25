@@ -13,7 +13,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-//#include <fstream.h>
 #include <string.h>
 
 #include "common.hpp"
@@ -64,7 +63,17 @@ void genfile ()    // Parameter musz mit @z  im Quellfile stehen
     int i,j,found,count=0;
 //    printf("Erzeuge Parameter-Netzliste\n");
     ex=fopen(fa,"r+");
+      
+      if (ex==NULL) {
+          fprintf(stderr, "Unable to open %s\n", fa);
+          exit(-3);
+      }
     ez=fopen(simcir,"w+");
+      
+      if (ez==NULL) {
+          fprintf(stderr, "Unable to open %s\n", simcir);
+          exit(-3);
+      }
 //------globale Parameter ermitteln----
     for (j=0;j<10;j++)
       {
@@ -131,7 +140,11 @@ void ergebnis()     // result
     char ein[150]="Time difference:";
     printf("Extract data...\n");
     ex=fopen("jtl20-slavex.pik","r+");
-   
+      
+      if (ex==NULL) {
+          fprintf(stderr, "Unable to open jtl20-slavex.pik\n");
+          exit(-3);
+      }
     while (b<1) 
       {
         fscanf(ex,"%s",&s);
@@ -155,6 +168,13 @@ int funktionstest()
     double w1;
     int test=0;
     eq=fopen(fd,"r+");
+      if (eq==NULL) {
+          fprintf(stderr, "Unable to open %s\n", fd);
+          exit(-4);
+      } else {
+          fprintf(stderr, "Reading %s\n", fd);
+
+      }
         {
           fscanf(eq,"%s",s);   w1=atof(s);   // Ergebnis
 	}        
@@ -179,12 +199,12 @@ int simu()
 	 strcat(command,fcc); // conf
 	 strcat(command," ");
 	 strcat(command,fd);  // simtest
-	 strcat(command," >> /dev/null");
+//	 strcat(command," >> /dev/null");
          e=system(command);
 //	 printf("Funktionstest: %s\n",command);
 	 e=funktionstest();
-//	 if (e==1) printf("O.K.\n");
-//	    else  printf("Fehler\n");
+//	 if (e==1) printf("ok.\n");
+//	    else  printf("fail\n");
 	 return e;   
   }
 
@@ -202,7 +222,16 @@ void test1()
     char s,ss[20];
     FILE *ex,*ey;
     ex=fopen(filename,"w+");
+    if (ex==NULL) {
+        fprintf(stderr, "Unable to open %s\n", filename);
+        exit(-4);
+    }
     ey=fopen("marginout1.tagr","r");
+      
+    if (ey==NULL) {
+      fprintf(stderr, "Unable to open marginout1.tagr\n");
+      exit(-4);
+    }
     while ( (s=fgetc(ey))!=EOF )  fputc(s,ex);
     fclose(ey);
     double x1,x2,y1,y2,px1,px2;
@@ -306,6 +335,10 @@ void test1()
 //----------------------                      
 
     ey=fopen("marginout2.tagr","r");
+      if (ex==NULL) {
+          fprintf(stderr, "Unable to open marginout2.tagr\n");
+          exit(-4);
+      }
     while ( (s=fgetc(ey))!=EOF )  fputc(s,ex);
     fclose(ey);
     fclose(ex); 
@@ -323,6 +356,10 @@ void test2()
     double zufall,m;
     int count=0;
     ee=fopen(fe,"w+");
+    if (ee==NULL) {
+        fprintf(stderr, "Unable to open %s\n", fe);
+        exit(-3);
+    }
     for (i=1; i<n; i++) parawert[i]=parawert2[i];
     for (i=1; i<n; i++) paracenter[i]=0.0;
     for (j=1; j<=maxtest; j++)
@@ -418,7 +455,17 @@ void test3()
     double zufall,m,geht;
     int count=0;
     ee=fopen(fe,"w+");
+      
+      if (ee==NULL) {
+          fprintf(stderr, "Unable to open %s\n", fe);
+          exit(-3);
+      }
     ett=fopen(filename,"w+");
+      
+      if (ett==NULL) {
+          fprintf(stderr, "Unable to open %s\n", filename);
+          exit(-3);
+      }
     for (i=1; i<n; i++) parawert[i]=parawert2[i];
     for (i=1; i<n; i++) paracenter[i]=0.0;
 //    printf("log(2.7)=%lf\n",log(2.7));  %  ist log = ln ?
@@ -432,7 +479,8 @@ void test3()
         for (i=1; i<n; i++) 
 	 if (parastatus[i]>0)   // nur aktive Parameter aendern
           {
-	    zi=rand();  zufall=normalverteilung( zi/double(RAND_MAX) );
+        zi=rand();
+        zufall=normalverteilung( zi/double(RAND_MAX) );
 	    	    	    
             m=1.0+zufall*streuung/100.0;
 	    if (m<0.1)  m=0.1;
@@ -446,11 +494,11 @@ void test3()
 	     count++;   
 	  }
         if ((j % 20)==0)
-	  {
+            {
             geht=100.0*double(count)/j;     
             printf("----%d----%d----%3.2lf---\n",j,count,geht); 
             fprintf(ee,"----%d----%d----%3.2lf---\n",j,count,geht);
-	  }
+            }
       }
      
       count=0;
@@ -465,6 +513,11 @@ void test3()
 void test4()
   {
     ee=fopen(fe,"w+");
+      
+      if (ee==NULL) {
+          fprintf(stderr, "Unable to open %s\n", fe);
+          exit(-3);
+      }
     int i=0,j=0;
     int para1,para2;    
     double firstx,firsty;
@@ -541,6 +594,11 @@ void test4()
 void test6()
   {
     ee=fopen(fe,"w+");
+      
+      if (ee==NULL) {
+          fprintf(stderr, "Unable to open %s\n", fe);
+          exit(-3);
+      }
     int i=0,j=0;
     int para1;     // Parameter
     printf("Parameter bestimmen\n");
@@ -597,7 +655,18 @@ void test5()
     double zufall,m,geht;
     int count=0;
     ee=fopen(fe,"w+");
+      
+      if (ee==NULL) {
+          fprintf(stderr, "Unable to open %s\n", fe);
+          exit(-3);
+      }
+      
     ett=fopen(filename,"w+");
+      
+      if (ett==NULL) {
+          fprintf(stderr, "Unable to open %fiename\n", fe);
+          exit(-3);
+      }
     for (i=1; i<n; i++) parawert[i]=parawert2[i];
     for (i=1; i<n; i++) paracenter[i]=0.0;
 //    printf("log(2.7)=%lf\n",log(2.7));  %  ist log = ln ?
@@ -677,9 +746,9 @@ int main (int argc, char *argv[])
       {
         printf("How to call auto3: \n");      
         printf("auto3 configfile(.conf) <1..Margins|2..Monte Carlo|3..Yield|4..2D scan|5..yield vs. para> <para1> <para2> ..\n"); 
-        printf("Mode 1: <maxteilung>   z.B. 8\n");      
-        printf("Mode 2: <maxtest> <streuung>    z.B   1000 30\n");      
-        printf("Mode 3: <maxtest> <maxstreuung> <steps>  z.B.  500  30  10\n");
+        printf("Mode 1: <maxdivision>   z.B. 8\n");      
+        printf("Mode 2: <maxtest> <scattering>    z.B   1000 30\n");      
+        printf("Mode 3: <maxtest> <maxscattering> <steps>  z.B.  500  30  10\n");
         printf("Mode 4: <para1> <para2> <steps>  z.B.  A x 10 100\n"); 
 	printf("Mode 5 (yield vs. parameter): <para> <steps> <spread>\n");
 	exit(1);
@@ -697,7 +766,11 @@ int main (int argc, char *argv[])
     P1= Phi0*betac/(2*Pi*P2*P2);    
       
     ey=fopen(fb,"r+");
-    parameterread();    
+    if (ey==NULL) {
+      fprintf(stderr, "Unable to open %s\n", fb);
+      exit(-3);
+    }
+    parameterread();
     switch (mode) 
      {
       case 1:   maxmarginstep=atoi(argv[3]);
@@ -712,7 +785,7 @@ int main (int argc, char *argv[])
       case 3:   maxtest=atoi(argv[3]);
                 maxyieldstreuung=atof(argv[4]);
 		maxyieldstep=atoi(argv[5]);
-                printf("Ausbeuteannalyse von sigma=0..%3.1lf in %d Schritte mit %d Berechnungen je Schritt\n"
+             printf("Yield analysis of sigma=0..%3.1lf in %d Steps with %d Calculations per step\n"
 		        ,maxyieldstreuung,maxyieldstep,maxtest);    		
                 test3();  break;
 

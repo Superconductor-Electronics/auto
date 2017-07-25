@@ -14,7 +14,7 @@ double readvalue(const char tc[])
     FILE *ez;
     char s[100];
     double zs;
-    printf("Read configuration file: %s -> ",fconf);
+    fprintf(stderr, "Read configuration file: %s -> ",fconf);
     ez=fopen(fconf,"r+");
     //   printf(".%s\n",fconf);
     fscanf(ez,"%s",s);
@@ -32,10 +32,11 @@ double readvalue(const char tc[])
 void readfilename(char s[], const char tc[])
 {
     FILE *ez;
-    printf("Read configuration file: %s -> ",fconf);
+    fprintf(stderr, "Read configuration file: %s -> ",fconf);
     ez=fopen(fconf,"r+");
     if (ez==NULL) {
-        printf("Unable to open file: %s\n", fconf);
+        fprintf(stderr, "** Unable to open file: %s\n", fconf);
+        exit(-1);
     }
     fscanf(ez,"%s",s);
     while (strcmp(s,tc)!=0) fscanf(ez,"%s",s);
