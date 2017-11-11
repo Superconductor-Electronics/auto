@@ -1,3 +1,3 @@
-auto3 dff5 1 10
-xmgrace dff5.agr  &
+auto3 comps 1 10
+xmgrace comps.agr  &
 

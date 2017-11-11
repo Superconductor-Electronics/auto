@@ -1,0 +1,13 @@
+#! /bin/bash
+P=2000
+rm GZ-all.dat
+while [ $P -le 3000 ]
+do
+./auto3b comp1 6 X  -20 20 10 1 y $P
+cp comp1.yi HC-$P.dat
+./errorfit comp1.yi
+echo $P > tmp.dat
+cat tmp.dat >> GZ-all.dat
+cat gray.data >> GZ-all.dat
+P=$[$P+200]
+done

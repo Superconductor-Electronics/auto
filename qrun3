@@ -1,0 +1,14 @@
+rm $2
+awk -f noise.awkf temperature=4.2K < $1 > noise.tmp
+mv noise.tmp $1
+jsim_n $1 > $2
+# ext $3
+# rm $4
+# ../bin/tabcomp $3 v >>  $4
+# ext $3
+cutt $3
+# cat /tmp/jtl-jitter.ext  >>  ~/sim/jsim-tool-box/jtl-2-jitter/jtl-jitter.all
+# $1  <simcir>
+# $2  <simout>
+# $3  config-file ohne Endung
+# $4  <simtest>

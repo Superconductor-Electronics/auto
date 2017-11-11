@@ -1,6 +1,6 @@
 rm $2
 jsim_n $1 > $2
-ext $3
+ext $2
 rm $4
 tabcomp $3 v >>  $4
 

@@ -12,7 +12,7 @@
 #define ja   1
 #define nein 0
 
-int output=nein,ende=0;
+int output=ja,ende=0;
 char fa[250],fb[250];
 double maxzerovoltage=0.0, minonevoltage=80.0,voltagesw;
 
@@ -55,7 +55,7 @@ void readfilename(char s[], char tc[])
 int main (int argc, char *argv[])
   {
     printf("---------------------------------------------------\n");
-    printf("ext v 2.11  Thomas Ortlepp 11.09.2001 - 01.07.2004 \n");  
+    printf("ext v 2.12  Thomas Ortlepp 11.09.2001 - 25.10.2009 \n");  
     printf("---------------------------------------------------\n");
     char s[100],ta[10]=".END",tb[10]="loop",f3[50]=".conf";
 
@@ -68,14 +68,17 @@ int main (int argc, char *argv[])
       {
 	strcpy(fconf,argv[1]);   // config-File   .conf
 	strcat(fconf,f3);          
-	readfilename(fa,"simout");
-	readfilename(fb,"extout");
+	char simfile[100]="simout"; readfilename(fa,simfile);
+	char extfile[100]="extout";  readfilename(fb,extfile);
 	
-	voltagesw=readvalue("voltageswitch");
+	char voltswitch[100]="voltageswitch";
+	char maxvolt[100]="maxzerovoltage";
+	char minvolt[100]="minonevoltage";
+	voltagesw=readvalue(voltswitch);
 	if (voltagesw!=0.0)
 	  {
-	    maxzerovoltage=readvalue("maxzerovoltage");
-	    minonevoltage=readvalue("minonevoltage");	    	    
+	    maxzerovoltage=readvalue(maxvolt);
+	    minonevoltage=readvalue(minvolt);	    	    
 	    printf("Last coloumn is a voltage (0:%lf,1:%lf)\n",
          	      maxzerovoltage,minonevoltage);
 	  }
@@ -93,7 +96,8 @@ int main (int argc, char *argv[])
         printf("input file: simout  and output file: extout \n"); 
 	exit(1);
       }	
-    tx=1e-12*readvalue("timestep");
+    char timepara[100]="timestep";  
+    tx=1e-12*readvalue(timepara);
   // printf("Einlesen der Datei :%s  %s\n",fa,fb);	
       
     printf("Reading data:%s\n",fa);
@@ -107,24 +111,27 @@ int main (int argc, char *argv[])
  
        int outx=0;
        
-       if (output==ja) printf("%s\n",s);
+//       if (output==ja) printf("# %s\n",s);
        fscanf(ex,"%s",s);
-
+//       if (output==ja) printf("# %s\n",s);
        ende=0;       
        while ((ende!=-1)&&(strcmp(s,tb)!=0))    // Kopie bis "loop" oder eof
         {
-          if (output==ja)  printf("#%s ",s);
-	  w=atof(s);
-	  if( (c<0)&&(fabs(w)>eps) )
-	    {
+          w=atof(s);
+//        if (output==ja)  printf("%2.12lf\n ",w);
+	  
+	  if ( (c<0)&&(fabs(w)>eps) ) 
+ 	    {
 	      n=99+c;
               c=1;
-              if (output==ja)  printf("Zähler: n=%d ",n);
+//              if (output==ja)  printf("Zaehler: n=%d \n ",n);
               q=0;
               if (outx==1) fprintf(ey,"\n");	    
 	      zd++;	      
 	    }  
-//	  fprintf(ey,"%s ",s);
+
+//          if (output==ja)  printf("%2.12lf\n ",w);	    // ###
+	  fprintf(ey,"%s ",s);
           if (c%n==1)
 	    {
 	      if (w>Q*tx-eps) { outx=1; Q++; }
@@ -156,10 +163,10 @@ int main (int argc, char *argv[])
 		 }  
 	   }
 	  ende=fscanf(ex,"%s ",s);  // bei neuem Compiler =1 anstatt =0
-          if (output==ja)  printf("(#%s )%d",s,ende);	  
+//          if (output==ja)  printf("(#%s )%d",s,ende);	  
 	  if (c++%n==0) 
 	    {
-              if (output==ja) printf("\n");
+//              if (output==ja) printf("\n");  // ###
               q=0;
               if (outx==1) fprintf(ey,"\n");	    
 	      zd++;

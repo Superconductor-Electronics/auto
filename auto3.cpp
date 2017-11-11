@@ -1,5 +1,5 @@
 //----------------------------------------------------
-//    Thomas Ortlepp    14.02.2001/13.04.2003/24.07.2009
+//    Thomas Ortlepp    14.02.2001/13.04.2003/13.02.2006
 //    
 //    1 Automatisch Parameter in Jsim Files setzen
 //    2 Simulieren
@@ -38,11 +38,18 @@ char   paralabel[dim][40];  // echte Bezeichnung
 int    maxmarginstep,maxyieldstep,stepnumber;
 double maxyieldstreuung,yield;
 int n,maxtest,streuung,mode=0;
-double para1,para2,para3,para4,para5;
-char fa[250],fb[250],simcir[250],fd[250],fe[250],ff[250],fcc[250];
+double para1,para2,para3,para4,para5,paraW;
+char fa[250],fb[250],simcir[250],fd[250],fe[250],ff[250],fcc[250],fg[250];
 char f6[50]=".conf";   // Endung config-File
-char para1c, para2c;
+char para1c, para2c, paraWc;
 char fconf[50];
+const int maxdelay=200001;
+
+double delaypara[maxdelay],delays[maxdelay],times[maxdelay], schaltz[maxdelay], yieldsteps;
+int dffQ[maxdelay];
+double test6delay,test6sigma,test6c1;
+int test6ones;
+
 //---------------------------------------------
 double readvalue(char tc[])
   {
@@ -154,7 +161,7 @@ void ergebnis()
     char ein[150]="Zeitdifferenz:";
     printf("Daten extrahieren...\n");
     ex=fopen("jtl20-slavex.pik","r+");
-   
+    
     while (b<1) 
       {
         fscanf(ex,"%s",&s);
@@ -188,6 +195,47 @@ int funktionstest()
        else return 0;
   }
 
+
+double readdelay(int index)
+  {
+    char s[100];
+    double w1,w2,w3,w4;
+    int test=0;
+    eq=fopen(fg,"r+");
+        {
+          fscanf(eq,"%s",s);   w1=atof(s);   // Ergebnis
+          fscanf(eq,"%s",s);   w2=atof(s);   // Ergebnis
+//	  fscanf(eq,"%s",s);   test=atoi(s);
+//        fscanf(eq,"%s",s);   w3=atof(s);   // Ergebnis
+	}        
+     fclose(eq);
+    times[index]= w1; 
+    delays[index]= w2;
+//    schaltz[index]= w3;
+//    dffQ[index]= test;
+  }
+
+int delaytest()
+  {
+     int e;
+         genfile();  // Erzeug Parameter Netzliste
+
+         char command2[100]="qrun3 ";
+  	 strcat(command2,simcir);  // simcir
+	 strcat(command2," ");
+	 strcat(command2,ff);  // simout
+	 strcat(command2," ");
+	 strcat(command2,fcc); // conf
+	 strcat(command2," ");
+	 strcat(command2,fd);  // simtest
+	 strcat(command2," >> /dev/null");
+         e=system(command2);  // Simulation starten 
+//	 printf("Funktionstest: %s\n",command);
+	 e=funktionstest();  // Delay Bestimmung ohne Funktionstest
+//	 if (e==1) printf("*");	    else  printf(".");
+	 return e;   
+  }
+
 int simu()
   {
      int e;
@@ -210,6 +258,98 @@ int simu()
 //	    else  printf("Fehler\n");
 	 return e;   
   }
+
+double simresult()
+  {
+     double e;
+         genfile();  // Erzeug Parameter Netzliste
+
+         char command[100]="qrun3 ";
+  	 strcat(command,simcir);  // simcir
+	 strcat(command," ");
+	 strcat(command,ff);  // simout
+	 strcat(command," ");
+	 strcat(command,fcc); // conf
+	 strcat(command," ");
+	 strcat(command,fd);  // simtest
+	 strcat(command," >> /dev/null");
+         e=system(command);
+
+        char s[100];
+        double w1,w2,w3,w4,w4neu,w5,w6;
+        int test=0;
+	
+        eq=fopen(fg,"r+");
+
+        // Differenz aus ersten und letzten Wert
+        fscanf(eq,"%s",s);   w1=atof(s);   // Zeit
+        fscanf(eq,"%s",s);   w2=atof(s);   // Clock
+        fscanf(eq,"%s",s);   w3=atof(s);   // Output
+
+        fscanf(eq,"%s",s);   w4neu=atof(s);   // Zeit
+        while (!(feof(eq)))
+          {
+	    w4=w4neu;
+            fscanf(eq,"%s",s);   w5=atof(s);   // Clock
+            fscanf(eq,"%s",s);   w6=atof(s);   // Output
+            fscanf(eq,"%s",s);   w4neu=atof(s);   // Zeit	    
+  	  }       	
+	printf("--> %3.2f   %3.2f %3.2f %3.2f %3.2f %3.2f \n",w1,w2,w3,w4,w5,w6);
+	   
+        w5=w5-w2;
+        w6=w6-w3;         
+        fclose(eq);
+        
+//        if (w5==99.0) e=w6/w5; else e=-1.0;
+        e=w6/w5;
+        return e;   	
+  }
+
+
+double simresult_new()
+  {
+        double e;
+        char s[100];
+        int w1,w2;
+        double w3,w4,w5;
+        int test=0;
+
+         genfile();  // Erzeug Parameter Netzliste
+
+//         char command[100]="qrun3.time ";
+         char command[100]="qrun4 ";
+  	 strcat(command,simcir);  // simcir
+	 strcat(command," ");
+	 strcat(command,ff);  // simout
+	 strcat(command," ");
+	 strcat(command,fcc); // conf
+	 strcat(command," ");
+	 strcat(command,fd);  // simtest
+	 strcat(command," >> /dev/null");
+         e=system(command);
+
+        eq=fopen(fg,"r+");
+
+        // Differenz aus ersten und letzten Wert
+        fscanf(eq,"%s",s);   w1=atoi(s);   // clock cycles
+        fscanf(eq,"%s",s);   w2=atoi(s);   // pone
+        fscanf(eq,"%s",s);   w3=atof(s);   // sum(delay)/pone
+        fscanf(eq,"%s",s);   w4=atof(s);   // sum((delay-mean_delay)^2)
+        fscanf(eq,"%s",s);   w5=atof(s);   // c1
+
+//	printf("-#>  %4d %4d %6.3lf %6.3lf %6.3lf \n",w1,w2,w3,w4,w5);
+	   
+        fclose(eq);
+
+        test6ones+=w2; 
+        test6delay+=w3;
+        test6sigma+=w4;
+	test6c1+=w5;
+        
+        e=double(w2)/w1;
+        return e;   	
+  }
+
 
 void test1()
   {
@@ -484,6 +624,123 @@ void test3()
     fclose(ett);
   }  
 
+void test5()
+  {
+    // steunung wird als 1 sigma in % interpretiert
+    // Überarbeitung - nun Jitter Analyse mit Rauschen
+    // erste Version fuer ASC 2006
+    
+    FILE *ett;
+    char filename[250];
+    readfilename(filename,"yield");   // nehme erstmal das yield Ausgangsfile
+    double streuung;
+    srand(1564443381);
+    int k,e,zi,ii;
+    long i,j;
+    long dcount=0;
+    double alpha,beta,teiler,faktor,m,geht;
+    int count=0;
+    double xm,sm,dd;
+   
+    ett=fopen(filename,"w+");
+    
+//  printf("log(2.7)=%lf\n",log(2.7));  %  ist log = ln ?
+
+   for (ii=1; ii<=yieldsteps; ii++)
+    {     
+    faktor=1.0+(2*ii-yieldsteps)*maxyieldstreuung/yieldsteps/100.0;
+
+    printf("step %d of %2.0lf \n",ii, yieldsteps);
+    ee=fopen(fe,"w+");
+
+    dcount=0;
+    count=0;
+    for (i=1; i<n; i++) parawert[i]=parawert2[i];
+    for (i=1; i<n; i++) paracenter[i]=0.0;
+
+
+    for (j=1; j<=maxtest; j++)
+      {
+        for (i=1; i<n; i++) 
+	 if (parastatus[i]>0)   // nur aktive Parameter aendern
+          {
+	       	    	    
+            m=faktor;
+            parawert[i]=m*parawert2[i];
+            delaypara[dcount]=parawert[i];
+//	    printf("Strom: %lf\n",parawert[i]);
+	  }  
+
+//	printf("%d %lf\n",dcount-1,delays[dcount]);
+	
+
+  	e=delaytest();  // e gibt den Funktionstest zurück
+        readdelay(dcount++);  //  Delay werte in Felder lesen 
+
+        if ((j % 100)==0)
+	  {
+            printf("----%d processed \n",j); 
+	  }
+      }  
+
+//      printf("< %3.1lf , %3.2lf >\n",streuung,geht);
+//      fprintf(ett," %3.1lf  %3.2lf\n",streuung,geht);      
+//      fflush(ett);
+     
+    fclose(ee);   
+  
+
+//----------------Delayauswertung----------
+//--sortieren
+/*    for (i=0; i<dcount; i++) 
+      {
+        if (delays[i]>100.0)  // nan Werte ausschließen - woher kommen die?
+	  {
+	    for (j=i; j<dcount-1; j++)  delays[j]=delays[j+1];
+	    dcount--;
+	  }
+      }
+    for (i=0; i<dcount-1; i++)
+      for (j=i+1; j<dcount; j++)
+       {
+         if (delays[i]>delays[j])
+	   {
+	     dd=delays[j];
+	     delays[j]=delays[i];
+	     delays[i]=dd;
+	   }    
+       }
+       */
+//      printf("Hallo %d\n",dcount); 
+//--        
+
+     for (i=0; i<dcount; i++)
+       {
+//          printf("%lf %lf %d\n",delaypara[i], delays[i],dffQ[i]);	  
+//          fprintf(ett,"%lf %lf\n",delaypara[i], times[i]-delays[i] );
+       }
+
+
+    double X=1.0/20;
+    xm=delays[0];
+    for (i=1; i<dcount; i++)  xm+=delays[i];
+    xm=xm/dcount;
+    sm=0.0;   
+    for (i=0; i<dcount; i++)  sm+=(delays[i]-xm)*(delays[i]-xm);    
+    sm=sqrt(X*sm/(dcount-1.0));
+
+    geht=100.0*double(count)/maxtest;     
+
+   
+    printf(    "> mu= %lf si= %lf  \n",X*xm,sm);
+   fprintf(ett," %lf %lf \n",X*xm,sm);
+
+    //--- yieldloop    
+   }    
+    fclose(ett);
+
+  }
+
 void test4()
   {
     ee=fopen(fe,"w+");
@@ -560,21 +817,36 @@ void test4()
         } else printf("Keine Funktion mit Anfangswerten!\n");  
   }
 
+//#######################################################################
 
-void test6()
+void test6a()  // Komparator Test
   {
+    readfilename(fg,"extout");	
+    FILE *ett;
+    char filename[250];
+    readfilename(filename,"yield");  
+    double streuung,multi;
+//    srand(1564443281);
+    int k,i,j,e,zi;
+
+    double alpha,beta,teiler,zufall,m,geht;
+    int count=0;
     ee=fopen(fe,"w+");
-    int i=0,j=0;
-    int para1;     // Parameter
-    double firstx,firsty;
-    printf("Parameter bestimmen\n");
+    ett=fopen(filename,"w+");
+    for (i=1; i<n; i++) parawert[i]=parawert2[i];
+    for (i=1; i<n; i++) paracenter[i]=0.0;
+//    printf("log(2.7)=%lf\n",log(2.7));  %  ist log = ln ?
+
+    int parax,paray;  
+    printf("search for parameter 1...\n");
+    i=0,j=0;
     do
     {                          // Nummer des aktiven Parameters suchen
       if (parastatus[i]>0)
         {
          if (para1c==paraname[i])   // 1. Parameter suchen
            {
-	    para1=i;
+	    parax=i;
 	   } 
 	 j++;    
        }   
@@ -582,36 +854,179 @@ void test6()
      // cout << i << endl;
      } 
     while (j<parameteraktiv);
-    printf("aktiver Parameter : %s = %lf\n",  paralabel[para1],parawert[para1]);   
+    printf("active parameter 1: %s = %lf\n",  paralabel[parax],parawert[parax]);   
 
-    int e,R,NR=stepnumber;
-    int maxteiler=maxmarginstep;
-    double min=1-maxmarginstep/100.0;
-    double max=1+maxmarginstep/100.0;
-    double delta;
-    double r1,r2,wx,wy;
+    printf("search for parameter 2...\n");
+    i=0,j=0;
+    do
+    {                          // Nummer des aktiven Parameters suchen
+      if (parastatus[i]>0)
+        {
+         if (paraWc==paraname[i])   // 1. Parameter suchen
+           {
+	    paray=i;
+	   } 
+	 j++;    
+       }   
+      i++; 
+     // cout << i << endl;
+     } 
+    while (j<parameteraktiv);
+    printf("active parameter 2: %s = %lf\n",  paralabel[paray],parawert[paray]);   
     
+  double test;
+  int tests;
+  count=0;
+  for (k=0; k<=maxyieldstep; k++)  // Parameterschritte
+   {
+    m=para1+k*(para2-para1)/maxyieldstep;
+    parawert[parax]=m;   // Parameterwert setzen
+    parawert[paray]=paraW; // fester Parameter
+    geht=0.0;
+    tests=0;
+    for (j=1; j<=maxtest; j++)  // Wiederholung des Tests
+      {
+        test=simresult();
+	if (test>=0.0)  
+	  {
+	    geht+=test;
+	    tests++;
+	  }
+        	 
+//	if (e==1)      count++;     
+        
+        if ((j % 20)==0)
+	  {
+            printf("----%d------%3.2lf---\n",j,geht/j); 
+	  }
+      }
+      
+
+      if (tests==0) geht=-1.0;
+         else geht=geht/tests;
+      count=0;
+      printf("< %5.2lf , %6.5lf >\n",m,geht);
+      fprintf(ett," %5.2lf  %6.5lf\n",m,geht);      
+      fflush(ett);
+    } 
+    fclose(ee);   
+    fclose(ett);
+  }  
+
+//#######################################################################
+
+void test6()  // Komparator Test - neue Version 03.07.2011 Berkeley
+  {
+    readfilename(fg,"extout");	
+    FILE *ett;
+    char filename[250];
+    readfilename(filename,"yield");  
+    double streuung,multi;
+//    srand(1564443281);
+    int k,i,j,e,zi;
+
+    double alpha,beta,teiler,zufall,m,geht;
+    int count=0;
+    ee=fopen(fe,"w+");
+    ett=fopen(filename,"w+");
     for (i=1; i<n; i++) parawert[i]=parawert2[i];
-    e=simu();
-    int I=0;
-        delta=(max-min)/stepnumber;
-        for (R=0; R<NR; R++)  // 
-	  {       
-  	     parawert[para1]=(min+delta*R)*parawert2[para1];
-
-//	     cout << parawert[para1]  << endl;
-             e=simu();          // Funktionstest
+    for (i=1; i<n; i++) paracenter[i]=0.0;
+//    printf("log(2.7)=%lf\n",log(2.7));  %  ist log = ln ?
 
 
-//          printf("wx,wy ");
-//          fprintf(ee,"%2.4lf %2.4lf\n",wx,wy);
-	  }    
-//    fprintf(ee,"%2.4lf %2.4lf\n",firstx,firsty); // resten Wert zum Schluss nochmal
+    int parax,paray;  
+//----------------------------
+    printf("search for parameter 1...\n");
+    i=0,j=0;
+    do
+    {                          // Nummer of active parameter
+      if (parastatus[i]>0)
+        {
+         if (para1c==paraname[i])   // 1. Parameter suchen
+           {
+	    parax=i;
+	   } 
+	 j++;    
+       }   
+      i++; 
+     // cout << i << endl;
+     } 
+    while (j<parameteraktiv);
+    printf("active parameter 1: %s = %lf\n",  paralabel[parax],parawert[parax]);   
 
-  }
+//----------------------------
+    printf("search for parameter 2...\n");
+    i=0,j=0;
+    do
+    {                          // Nummer des aktiven Parameters suchen
+      if (parastatus[i]>0)
+        {
+         if (paraWc==paraname[i])   // 1. Parameter suchen
+           {
+	    paray=i;
+	   } 
+	 j++;    
+       }   
+      i++; 
+     // cout << i << endl;
+     } 
+    while (j<parameteraktiv);
+    printf("active parameter 2: %s = %lf\n",  paralabel[paray],parawert[paray]);   
+
+//----------------------------
+  double test;
+  int tests;
+  count=0;
+  for (k=0; k<=maxyieldstep; k++)  // Parameterschritte
+   {
+    m=para1+k*(para2-para1)/maxyieldstep;
+    parawert[parax]=m;   // Parameterwert setzen
+    parawert[paray]=paraW; // fester Parameter
+    geht=0.0;
+    tests=0;
+    test6ones=0;
+    test6delay=0;
+    test6sigma=0;
+    test6c1=0;
+    for (j=1; j<=maxtest; j++)  // Wiederholung des Tests
+      {
+        test=simresult_new();   // delay+jitter will be updated
+	if (test>=0.0)  
+	  {
+	    geht+=test;
+	    tests++;
+	  }
+        	 
+//	if (e==1)      count++;     
+        
+        if ((j % 20)==0)
+	  {
+            printf("----%d------%3.2lf---\n",j,geht/j); 
+	  }
+      }
+
+     double delay,sigma;
+     if (test6ones>0) { delay=test6delay/test6ones; }
+     if (test6ones>1) { sigma=sqrt(test6sigma)/(test6ones-1); }
+     
+     if (tests==0) geht=-1.0;
+         else geht=geht/tests;
+     test6c1=test6c1/maxtest;
+    	 
+     count=0;
+     
+     printf("[%5.2lf , %6.5lf](%d)-> %6.5lf  %6.5lf %6.5lf\n",m,geht,test6ones,delay,sigma,test6c1);
+     fprintf(ett," %5.2lf  %6.5lf %6.5lf %6.5lf %6.5lf\n",m,geht, delay,sigma,test6c1);      
+     fflush(ett);
+    } 
+    fclose(ee);   
+    fclose(ett);
+  }  
 
 
-void test5()
+//#######################################################################
+
+void test7()
   {
     // yield versus parameter
     FILE *ett;
@@ -690,9 +1105,9 @@ int main (int argc, char *argv[])
   {
     int e,mode;
        
-    printf("\nAutomatischer Parameterfile-Generator  v 1.91 12.03.2001\n");
-    printf("ortlepp<at>rsfq.de-------------------------------------------\n");
-    printf("modification 22.05.2008, 24.08.2009-----------------------\n");      
+    printf("\nAutomatic parameter generator   v 3.0b 12.03.2001\n");
+    printf("Modifications: 13.04.2003, 13.02.2006-04.03.2009-------\n");  
+    printf("Thomas Ortlepp, RSFQ deisng group, Ilmenau------------\n");      
     if (argc>3)
       {
 	strcpy(fconf,argv[1]);
@@ -702,13 +1117,17 @@ int main (int argc, char *argv[])
       }	
     else    
       {
-        printf("How to call auto3: \n");      
-        printf("auto3 configfile(.conf) <1..Margins|2..Monte Carlo|3..Yield|4..2D scan|5..yield vs. para> <para1> <para2> ..\n"); 
-        printf("Mode 1: <maxteilung>   z.B. 8\n");      
-        printf("Mode 2: <maxtest> <streuung>    z.B   1000 30\n");      
-        printf("Mode 3: <maxtest> <maxstreuung> <schritte>  z.B.  500  30  10\n"); 
-        printf("Mode 4: <para1> <para2> <schritte>  z.B.  A x 10 100\n"); 
-	printf("Mode 5 (yield vs. parameter): <para> <steps> <spread>\n");
+        printf("How to call: \n");      
+        printf("auto3 configfile(.conf) <1..Margins|2..Monte Carlo Schwerpunkt|3..Ausbeute> <para1> <para2> ..\n"); 
+        printf("Modus 1: <maxteilung>   z.B. 8\n");      
+        printf("Modus 2: <maxtest> <streuung>    z.B   1000 30\n");      
+        printf("Modus 3: <maxtest> <maxstreuung> <schritte>  z.B.  500  30  10\n"); 
+        printf("Modus 4: <para1> <para2> <schritte>  z.B.  A x 10 100\n"); 
+	printf("\n");
+
+        printf("mode 6: <para1> <start> <stop> <repeat> <para2> <value>  z.B. A -10 10 10 2 x 70\n");         
+	
+	printf("mode 7: (yield vs. parameter): <para> <steps> <spread>\n");	
 	exit(1);
       }	
     
@@ -718,6 +1137,7 @@ int main (int argc, char *argv[])
     readfilename(fd,"simtest");      
     readfilename(fe,"cirmar");
     readfilename(ff,"simout");
+    readfilename(fg,"extout");
     I0RN=readvalue("I0RN");
     P2= I0RN;
     betac=readvalue("betac");
@@ -750,21 +1170,38 @@ int main (int argc, char *argv[])
 		stepnumber=atoi(argv[6]);
 
                 test4();  break;
+	
+      case 5:   printf("Time Delay Analysis \n");
+		maxtest=atoi(argv[3]);      		
+                maxyieldstreuung=atof(argv[4]);
+	     	yieldsteps=atof(argv[5]);
+             // printf("sigma=%3.1lf, counts= %d,steps=%lf\n",maxyieldstreuung,maxtest,yieldsteps);    		
 
+             // if (maxtest>maxdelay) assert(1);		
+		test5();  break;
+		
+      case 6:   printf("Komparator Test \n");
+                para1c=argv[3][0];   // Parameter Bezeichner
+		para1 =atof(argv[4]); // Anfangswert
+		para2 =atof(argv[5]); // Endwert
+		maxyieldstep=atoi(argv[6]); // Schritte für den Parameter
+		maxtest=atoi(argv[7]);  // Wiederholungen für Mittelung     		
 
-      case 5:   para1c=argv[3][0];
+                paraWc=argv[8][0];   // Parameter Bezeichner 2
+		paraW =atof(argv[9]); // Wert
+
+                printf("comparator test vs. parameter: %c :(%4.2f..%4.2f), steps: %d , repeat: %d\n"
+		                   ,para1c,  para1, para2, maxyieldstep, maxtest);    		
+                
+		test6(); 
+		 break;
+		
+      case 7:   para1c=argv[3][0];
                 maxyieldstep=atoi(argv[4]);
 		yield=atof(argv[5]);
                 printf("Yield vs. Parameter: %c , yield: %3.1f , trails: %d\n"
 		                   ,para1c,  yield, maxyieldstep);    		
-                test5();  break;
-
-      case 6:   printf("1D Energie Analyse TFF \n");    		
-                para1c=argv[3][0];  // erster Parameter
-		maxmarginstep=atoi(argv[4]);
-		stepnumber=atoi(argv[5]);
-
-                test5();  break;
+                test7();  break;
 
 		
       default:  printf("ungueltiger Betriebsmodues angegeben!\n");
@@ -774,6 +1211,8 @@ int main (int argc, char *argv[])
                 printf("Modus 2: <maxtest> <streuung>    z.B   1000 30\n");      
                 printf("Modus 3: <maxtest> <maxstreuung> <schritte>  z.B.  500  30  10\n");                      
                 printf("Modus 4: <para1> <para2> <schritte>  z.B.  A x 10 100\n"); 
+		printf("\n");
+                printf("mode 6: <para1> <para2> <schritte>  z.B.  A x 10 100\n"); 		
      }	    
 
     fclose(ey);
