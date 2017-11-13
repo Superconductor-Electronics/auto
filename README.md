@@ -23,3 +23,15 @@ There are several branches here...
   vendor_ortlepp_auto3_20060213
      another version of the code, given to me later by Thomas Ortlepp
 
+
+Quick start:
+
+install cmake
+
+git clone https://github.com/coldlogix/auto.git
+cd auto
+mkdir build
+cd build
+cmake ..
+make
+
