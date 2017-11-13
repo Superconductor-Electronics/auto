@@ -11,21 +11,22 @@ together and figure out a common "best" version of auto.
 This is *very* much a work in progress.
 
 There are several branches here...
-  english
+ * english
      an attempt to convert auto to english
 
-  master
+ * master
      the branch which hopefully will become 'defacto' one day
 
-  vendor_ortlepp_auto3
+ * vendor_ortlepp_auto3
      the original code given to me by Thomas Ortlepp
 
-  vendor_ortlepp_auto3_20060213
+ * vendor_ortlepp_auto3_20060213
      another version of the code, given to me later by Thomas Ortlepp
 
 
-Quick start:
-
+Quick Start
+===========
+```
 install cmake
 
 git clone https://github.com/coldlogix/auto.git
@@ -34,4 +35,4 @@ mkdir build
 cd build
 cmake ..
 make
-
+```
